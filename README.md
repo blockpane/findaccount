@@ -17,7 +17,7 @@ go build -o findaccounts cmd/findaccounts/main.go
 Example:
 
 ```
-$ findaccounts juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8 | grep true
+$ findaccounts juno1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twfn0ja8 
 chain,address,has balance,coins,error
 agoric,agoric1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twduwk2d,false,,ok
 akash,akash1aeh8gqu9wr4u8ev6edlgfq03rcy6v5twj6pwrp,false,,ok

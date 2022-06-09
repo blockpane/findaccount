@@ -13,17 +13,18 @@ var accountsMux sync.Mutex
 type Result struct {
 	Chain      string `json:"chain"`
 	Address    string `json:"address"`
+	Validator  string `json:"is_validator"`
 	HasBalance bool   `json:"hasBalance"`
 	Coins      string `json:"coins"`
 	Error      string `json:"error"`
 }
 
 func (r Result) CsvHeader() string {
-	return "chain,address,has balance,coins,error"
+	return "chain,address,validator,has balance,coins,error"
 }
 
 func (r Result) ToCsv() string {
-	return fmt.Sprintf("%s,%s,%v,%s,%s", r.Chain, r.Address, r.HasBalance, r.Coins, r.Error)
+	return fmt.Sprintf("%s,%s,%q,%v,%s,%s", r.Chain, r.Address, r.Validator, r.HasBalance, r.Coins, r.Error)
 }
 
 func SearchAccounts(account string) ([]Result, error) {
@@ -49,9 +50,11 @@ func SearchAccounts(account string) ([]Result, error) {
 			if e != nil {
 				errStr = e.Error()
 			}
+			val, _ := IsValidator(rpcs, chain, addr)
 			results = append(results, Result{
 				Chain:      chain,
 				Address:    addr,
+				Validator:  val,
 				HasBalance: bal,
 				Coins:      coins,
 				Error:      errStr,

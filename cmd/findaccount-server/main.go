@@ -83,10 +83,19 @@ func main() {
 
 		_, _ = writer.Write(body)
 	})
+
+	http.Handle("/", &CacheHandler{})
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+}
+
+// CacheHandler implements the Handler interface with a very long Cache-Control set on responses
+type CacheHandler struct{}
+
+func (ch CacheHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	rootDir, err := fs.Sub(findaccount.StaticFs, "static")
 	if err != nil {
 		log.Fatalln(err)
 	}
-	http.Handle("/", http.FileServer(http.FS(rootDir)))
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+	writer.Header().Set("Cache-Control", "public, max-age=86400")
+	http.FileServer(http.FS(rootDir)).ServeHTTP(writer, request)
 }

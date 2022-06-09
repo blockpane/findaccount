@@ -7,6 +7,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	staketypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+	"regexp"
+	"strings"
 )
 
 type ChainInfo struct {
@@ -19,19 +21,39 @@ type Rpc struct {
 	Address string `json:"address"`
 }
 
+var portRex = regexp.MustCompile(`.*:\d+$`)
+var protoRex = regexp.MustCompile(`^\w+://`)
+
 func getClient(info *ChainInfo, chain string) (*rpchttp.HTTP, error) {
 	client := &rpchttp.HTTP{}
 	var err error
-	//defer client.Stop()
 	ok := false
-	for _, endpoint := range info.Apis.Rpc {
+	for i := range info.Apis.Rpc {
+		endpoint := info.Apis.Rpc[len(info.Apis.Rpc)-1-i]
+		endpoint.Address = strings.TrimRight(endpoint.Address, "/")
+		var unknown bool
+
+		if !portRex.MatchString(endpoint.Address) {
+			switch protoRex.FindString(endpoint.Address) {
+			case "https://":
+				endpoint.Address = endpoint.Address + ":443"
+			case "http://":
+				endpoint.Address = endpoint.Address + ":80"
+			case "tcp://":
+				endpoint.Address = endpoint.Address + ":26657"
+			default:
+				unknown = true
+			}
+		}
+		if unknown {
+			continue
+		}
 		client, err = rpchttp.NewWithTimeout(endpoint.Address, "/websocket", 10)
 		if err != nil {
 			continue
 		}
-		_, err = client.Status(context.Background())
-		if err != nil {
-			//_ = client.Stop()
+		status, e := client.Status(context.Background())
+		if e != nil || status.SyncInfo.CatchingUp {
 			continue
 		}
 		ok = true

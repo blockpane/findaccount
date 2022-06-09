@@ -1,9 +1,10 @@
 # 1st stage, build app
-FROM golang:latest as builder
+FROM golang:1.18 as builder
 RUN apt-get update && apt-get -y upgrade
 COPY . /build/app
 WORKDIR /build/app
 
+RUN bash ./chains/fetch.sh
 RUN go get ./... && go build -ldflags "-s -w" -o findaccount-server cmd/findaccount-server/main.go
 
 # 2nd stage, create a user to copy, and install libraries needed if connecting to upstream TLS server

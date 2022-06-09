@@ -17,6 +17,7 @@ type Result struct {
 	HasBalance bool   `json:"hasBalance"`
 	Coins      string `json:"coins"`
 	Error      string `json:"error"`
+	Link       string `json:"link"`
 }
 
 func (r Result) CsvHeader() string {
@@ -39,10 +40,14 @@ func SearchAccounts(account string) ([]Result, error) {
 	wg := &sync.WaitGroup{}
 	wg.Add(len(infos))
 	for k, v := range infos {
+		var link string
 
 		accountsMux.Lock()
 		chain, rpcs := k, v
 		addr := addrMap[k]
+		if len(infos[k].Explorers) > 0 {
+			link = infos[k].Explorers[0].Url
+		}
 		accountsMux.Unlock()
 
 		go func() {
@@ -59,6 +64,7 @@ func SearchAccounts(account string) ([]Result, error) {
 				HasBalance: bal,
 				Coins:      coins,
 				Error:      errStr,
+				Link:       link,
 			})
 			wg.Done()
 		}()

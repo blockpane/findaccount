@@ -15,10 +15,15 @@ type ChainInfo struct {
 	Apis struct {
 		Rpc []Rpc `json:"rpc"`
 	} `json:"apis"`
+	Explorers []Explorer `json:"explorers"`
 }
 
 type Rpc struct {
 	Address string `json:"address"`
+}
+
+type Explorer struct {
+	Url string `json:"url"`
 }
 
 var portRex = regexp.MustCompile(`.*:\d+$`)
@@ -125,8 +130,8 @@ func QueryAccount(info *ChainInfo, chain, account string) (hasBalance bool, bala
 		if err != nil {
 			return
 		}
-		balances = balResp.String()
-		if len(balances) > 0 {
+		if balResp.Balance != nil {
+			balances = balResp.Balance.String()
 			hasBalance = true
 		}
 	}

@@ -10,7 +10,6 @@ import (
 	"log"
 	"net/http"
 	"net/netip"
-	"sort"
 )
 
 func main() {
@@ -46,7 +45,7 @@ func main() {
 
 		addr := request.URL.Query()["addr"]
 		if addr == nil || len(addr) == 0 {
-			writer.WriteHeader(http.StatusBadRequest)
+			//writer.WriteHeader(http.StatusBadRequest)
 			_, _ = writer.Write(invalidRequest)
 			return
 		}
@@ -54,7 +53,7 @@ func main() {
 		// ensure a valid addr before continuing
 		_, _, err := bech32.DecodeAndConvert(addr[0])
 		if err != nil {
-			writer.WriteHeader(http.StatusBadRequest)
+			//writer.WriteHeader(http.StatusBadRequest)
 			_, _ = writer.Write(invalidRequest)
 			log(fmt.Sprintf("could not decode bech32 address %q", addr[0]))
 			return
@@ -68,10 +67,11 @@ func main() {
 			return
 		}
 
-		// re-sort so chains with a balance are on the top of the list
-		sort.Slice(result, func(i, j int) bool {
-			return result[i].HasBalance == true && result[j].HasBalance == false
-		})
+		for i := range result {
+			if result[i].Error == "ok" {
+				result[i].Error = ""
+			}
+		}
 
 		body, err := json.Marshal(result)
 		if err != nil {

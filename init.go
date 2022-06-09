@@ -11,7 +11,11 @@ import (
 var (
 	//go:embed chains/*.json
 	chainsFs embed.FS
-	infos    = make(map[string]*ChainInfo)
+
+	//go:embed static/*
+	StaticFs embed.FS
+
+	infos = make(map[string]*ChainInfo)
 )
 
 func init() {

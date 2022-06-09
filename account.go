@@ -27,6 +27,7 @@ func (r Result) ToCsv() string {
 	return fmt.Sprintf("%s,%s,%q,%v,%s,%s", r.Chain, r.Address, r.Validator, r.HasBalance, r.Coins, r.Error)
 }
 
+// SearchAccounts is the entrypoint for performing a search
 func SearchAccounts(account string) ([]Result, error) {
 	results := make([]Result, 0)
 

@@ -2,6 +2,16 @@
 
 Tool for identifying what IBC chains an account exists on. Give it an address and it will query public RPC nodes and print out CSV with info.
 
+**Important** it is necessary to retrieve the JSON files from the [Cosmos chain-registry](https://github.com/cosmos/chain-registry). To do this, run the [chains/fetch.sh](chains/fetch.sh) script.
+
+Build: 
+
+```
+bash ./chains/fetch.sh
+go get ./...
+go build -o findaccounts cmd/findaccounts/main.go
+```
+
 ![example](example.png)
 
 Example:
